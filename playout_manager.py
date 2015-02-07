@@ -14,10 +14,10 @@ class SenderFactory(Factory):
     Makes Sender to send commands to playout after we received a request
     """
     def startedConnecting(self, connector):
-        sys.stdout.write('Started to connect...')
+        sys.stdout.write('Connecting to playout service...')
 
     def buildProtocol(self, connector):
-        sys.stdout.write('Connected')
+        sys.stdout.write('Protocol built')
         return Sender()
 
     def clientConnectionLost(self, connector, reason):
@@ -33,6 +33,15 @@ class Sender(Protocol):
     """
     def dataReceived(self, data):
         sys.stdout.write('Data received: %s' % data)
+
+    def connectionMade(self):
+        sys.stdout.write('Connected to %s' % self.transport.getHost())
+        self.send_request()
+
+    def send_request(self):
+        data = b'name,time'
+        self.transport.write(data)
+        sys.stdout.write('Date sent: %s' % data)
 
 
 host = 'localhost'

@@ -6,7 +6,7 @@ from twisted.internet.protocol import Protocol
 from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ServerEndpoint
 from twisted.python import log
-
+from twisted.internet.tcp import Port
 
 log.startLogging(sys.stdout)
 
@@ -20,8 +20,9 @@ class Receiver(Protocol):
     """
     receives a request for media stream
     """
+
     def connectionMade(self):
-        sys.stdout.write('Connection made')
+        sys.stdout.write('Connection made with host %s' % self.transport.getHost())
 
     def connectionLost(self, reason):
         sys.stdout.write('Connection lost: %s' % reason)
@@ -34,15 +35,19 @@ class PlayoutFactory:
     """
     hosts playout server and delivers instructions to stream.py
     """
+
     def __init__(self, protocol_factory, port=8007):
         self.endpoint = TCP4ServerEndpoint(reactor, port)
         self.endpoint.listen(protocol_factory)
         self.reactor = reactor
+
     def run(self):
         self.reactor.run()
+
     def stop(self):
         self.reactor.callFromThread(reactor.stop)
 
 
 # usage example
 playout_240 = PlayoutFactory(ReceiverFactory(), 8007)
+playout_240.run()
