@@ -29,6 +29,7 @@ class Receiver(Protocol):
 
     def dataReceived(self, data):
         sys.stdout.write('Data received: %s' % data)
+        self.transport.write(data + b' :confirmed')
 
 
 class PlayoutFactory:
@@ -49,5 +50,5 @@ class PlayoutFactory:
 
 
 # usage example
-playout_240 = PlayoutFactory(ReceiverFactory(), 8007)
+playout_240 = PlayoutFactory(ReceiverFactory(), 8240)
 playout_240.run()
