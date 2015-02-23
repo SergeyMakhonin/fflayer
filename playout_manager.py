@@ -7,7 +7,7 @@ from facility import ClientFactory, ReceiverFactory
 log.startLogging(sys.stdout)
 
 
-class SenderFactory(Factory):
+class PlayoutManagerSenderFactory(Factory):
     """
     Makes Sender to send commands to Playout after received a request
     """
@@ -26,7 +26,7 @@ class SenderFactory(Factory):
         sys.stdout.write('Connection failed. Reason: %s' % reason)
 
 
-class Sender(Protocol):
+class PlayoutManagerSender(Protocol):
     """
     Sends a request to playout service
     """
@@ -46,14 +46,39 @@ class Sender(Protocol):
         sys.stdout.write('Data sent: %s' % data)
 
 
-#host = 'localhost'
-#port = 8240
-#reactor.connectTCP(host, port, SenderFactory())
-#reactor.run()
+# raw code example
+# host = 'localhost'
+# port = 8240
+# reactor.connectTCP(host, port, SenderFactory())
+# reactor.run()
 
 
 # playout_manager client usage example
-playout_manager = ClientFactory(SenderFactory(), port=8240)
-playout_manager.run()
+# playout_manager = ClientFactory(SenderFactory(), port=8240)
+# playout_manager.run()
 
 
+class PlayoutManagerReceiverFactory(Factory):
+    def buildProtocol(self, addr):
+        return PlayoutManagerReceiver()
+
+
+class PlayoutManagerReceiver(Protocol):
+    """
+    receives a command from database scanner service to pass it to Playout
+    """
+
+    def connectionMade(self):
+        sys.stdout.write('Connection made with  host %s' % self.transport.getHost())
+
+    def connectionLost(self, reason):
+        sys.stdout.write('Connection lost: %s' % reason)
+
+    def dataReceived(self, data):
+        sys.stdout.write('Data received: %s' % data)
+        try:
+            self.transport.write(data + b' :confirmed')
+        except Exception as e:
+            sys.stdout.write('Failed to send confirmation. Reason: %s' % e)
+
+playout_manager_receiver = ReceiverFactory(PlayoutManagerReceiverFactory, 8100)
