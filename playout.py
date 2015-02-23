@@ -3,20 +3,18 @@ __author__ = 'sergey'
 import sys
 from twisted.internet.protocol import Factory
 from twisted.internet.protocol import Protocol
-from twisted.internet import reactor
-from twisted.internet.endpoints import TCP4ServerEndpoint
 from twisted.python import log
-from twisted.internet.tcp import Port
+from facility import ReceiverFactory
 
 log.startLogging(sys.stdout)
 
 
-class ReceiverFactory(Factory):
+class PlayoutFactory(Factory):
     def buildProtocol(self, addr):
-        return Receiver()
+        return Playout()
 
 
-class Receiver(Protocol):
+class Playout(Protocol):
     """
     receives a request for media stream
     """
@@ -29,26 +27,11 @@ class Receiver(Protocol):
 
     def dataReceived(self, data):
         sys.stdout.write('Data received: %s' % data)
-        self.transport.write(data + b' :confirmed')
+        try:
+            self.transport.write(data + b' :confirmed')
+        except Exception as e:
+            sys.stdout.write('Failed to send confirmation. Reason: %s' % e)
 
-
-class PlayoutFactory:
-    """
-    hosts playout server and delivers instructions to stream.py
-    """
-
-    def __init__(self, protocol_factory, port=8007):
-        self.endpoint = TCP4ServerEndpoint(reactor, port)
-        self.endpoint.listen(protocol_factory)
-        self.reactor = reactor
-
-    def run(self):
-        self.reactor.run()
-
-    def stop(self):
-        self.reactor.callFromThread(reactor.stop)
-
-
-# usage example
-playout_240 = PlayoutFactory(ReceiverFactory(), 8240)
+# usage example for Playout 240 (on port 8240)
+playout_240 = ReceiverFactory(PlayoutFactory(), 8240)
 playout_240.run()

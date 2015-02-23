@@ -1,17 +1,15 @@
 import sys
 from twisted.internet.protocol import Factory
 from twisted.internet.protocol import Protocol
-from twisted.internet import reactor
-from twisted.internet.endpoints import TCP4ServerEndpoint
 from twisted.python import log
-
+from facility import ClientFactory, ReceiverFactory
 
 log.startLogging(sys.stdout)
 
 
 class SenderFactory(Factory):
     """
-    Makes Sender to send commands to playout after we received a request
+    Makes Sender to send commands to Playout after received a request
     """
 
     def startedConnecting(self, connector):
@@ -35,7 +33,7 @@ class Sender(Protocol):
 
     def dataReceived(self, data):
         sys.stdout.write('Data received: %s' % data)
-        if ':confirmed' in data:
+        if b':confirmed' in data:
             self.transport.loseConnection()
 
     def connectionMade(self):
@@ -54,17 +52,8 @@ class Sender(Protocol):
 #reactor.run()
 
 
-class PlayoutManager:
-    def __init__(self, host='localhost', port=8007):
-        self.reactor = reactor
-        self.reactor.connectTCP(host, port, SenderFactory())
-
-    def run(self):
-        self.reactor.run()
-
-    def stop(self):
-        self.reactor.callFromThread(reactor.stop)
-
-
-playout_manager = PlayoutManager(port=8240)
+# playout_manager client usage example
+playout_manager = ClientFactory(SenderFactory(), port=8240)
 playout_manager.run()
+
+
