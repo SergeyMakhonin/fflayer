@@ -1,7 +1,7 @@
 __author__ = 'sergey'
 
 DATABASE = {
-    'drivername': 'postgres+psycopg2',
+    'drivername': 'postgresql+psycopg2',
     'host': 'localhost',
     'port': '5432',
     'username': 'fflayer',

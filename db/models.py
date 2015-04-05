@@ -1,23 +1,13 @@
 __author__ = 'sergey'
 
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.engine.url import URL
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-import db.settings as settings
 import logging
 
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 DeclarativeBase = declarative_base()
-
-
-def connect():
-    """
-    Performs database connection using database settings from settings.py.
-    Returns sqlalchemy engine instance
-    """
-    return create_engine(URL(**settings.DATABASE))
 
 
 def create_schemma(engine):
@@ -38,7 +28,7 @@ class File(DeclarativeBase):
     parameter = Column(Integer)
 
     def __repr__(self):
-        return "<File(name='%s', time_length='%s')>" % (self.name, self.time_length)
+        return "<File(name='%s', duration='%s')>" % (self.name, self.duration)
 
 
 class Schedule(DeclarativeBase):
@@ -52,7 +42,7 @@ class Schedule(DeclarativeBase):
     duration = Column(Integer)  # in seconds
 
     def __repr__(self):
-        return "<File(name='%s', start_time='%s')>" % (self.name, self.time_length)
+        return "<File(name='%s', start_time='%s')>" % (self.name, self.start_time)
 
 
 class NetworkInfo(DeclarativeBase):
@@ -67,10 +57,3 @@ class NetworkInfo(DeclarativeBase):
 
     def __repr__(self):
         return "<File(playout_id='%s', host='%s', port='%s')>" % (self.playout_id, self.host, self.port)
-
-
-# DB connection object
-engine = connect()
-
-# create tables
-#create_schemma(engine)
