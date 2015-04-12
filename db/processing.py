@@ -42,5 +42,22 @@ class DataBase(object):
     def add_object(self, ObjectInstance):
         self.session.add(ObjectInstance)
 
-# session = create_session_object()
-# pdb.set_trace()
+    def create_object(self, table, **kwargs):
+        if table == 'file':
+            ObjectInstance = File()
+            if 'name' in kwargs:
+                ObjectInstance.name = kwargs['name']
+            elif 'duration' in kwargs:
+                ObjectInstance.duration = kwargs['duration']
+            elif 'parameter' in kwargs:
+                ObjectInstance.parameter = kwargs['parameter']
+            # TODO add field values to ObjectInstance
+        elif table == 'schedule': pass
+        else:
+            raise Exception('Relation does not exist.')
+        return ObjectInstance
+
+
+#DB = DataBase()
+#DB.create_session_object()
+#pdb.set_trace()
