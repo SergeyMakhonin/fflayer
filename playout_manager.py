@@ -1,8 +1,11 @@
 import sys
+
 from twisted.internet.protocol import Factory
 from twisted.internet.protocol import Protocol
 from twisted.python import log
-from facility import ClientFactory, ReceiverFactory
+
+from message import Message, convert_received_data
+from network_facility import ClientFactory, ReceiverFactory
 
 log.startLogging(sys.stdout)
 
@@ -17,7 +20,7 @@ class PlayoutManagerSenderFactory(Factory):
 
     def buildProtocol(self, connector):
         sys.stdout.write('Protocol built')
-        return Sender()
+        return PlayoutManagerSender()
 
     def clientConnectionLost(self, connector, reason):
         sys.stdout.write('Lost connection.  Reason: %s' % reason)
@@ -30,7 +33,6 @@ class PlayoutManagerSender(Protocol):
     """
     Sends a request to playout service
     """
-
     def dataReceived(self, data):
         sys.stdout.write('Data received: %s' % data)
         if b':confirmed' in data:
@@ -67,18 +69,26 @@ class PlayoutManagerReceiver(Protocol):
     """
     receives a command from database scanner service to pass it to Playout
     """
-
     def connectionMade(self):
-        sys.stdout.write('Connection made with  host %s' % self.transport.getHost())
+        self.service_name = 'Playout Manager Service'
+        sys.stdout.write('{%s connected with host %s' % (self.service_name, self.transport.getHost()))
+        try:
+            msg = Message(service_role=self.service_name)
+            self.transport.write(b'%s', msg.get_byte_string())
+        except Exception as e:
+            sys.stdout.write('Failed to send role. Reason: %s' % e)
 
     def connectionLost(self, reason):
         sys.stdout.write('Connection lost: %s' % reason)
 
     def dataReceived(self, data):
         sys.stdout.write('Data received: %s' % data)
+        got_msg = convert_received_data(data)
         try:
-            self.transport.write(data + b' :confirmed')
+            msg = Message(confirmed=True, received_data=data)
+            self.transport.write(b'%s' % msg.get_byte_string())
         except Exception as e:
             sys.stdout.write('Failed to send confirmation. Reason: %s' % e)
+
 
 playout_manager_receiver = ReceiverFactory(PlayoutManagerReceiverFactory, 8100)

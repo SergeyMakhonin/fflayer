@@ -25,7 +25,7 @@ class ClientFactory:
     """
     initializes client to send data using given protocol_factory
     """
-    def __init__(self, protocol_factory, host='localhost', port=8007):
+    def __init__(self, protocol_factory, host='localhost', port=8003):
         self.reactor = reactor
         self.reactor.connectTCP(host, port, protocol_factory)
 
