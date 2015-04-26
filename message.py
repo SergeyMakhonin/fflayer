@@ -5,20 +5,20 @@ import json
 
 class Message(object):
     def __init__(self, **kwargs):
-        self.message = {
+        self.fields = {
             'service_role': kwargs['service_role'],
-            'received_data': kwargs['received_data'],
+            'received_data': kwargs['data'],
             'confirmed': kwargs['confirmed']
         }
 
     def in_bytes(self):
-        data = json.dumps(self.message)
+        data = json.dumps(self.fields)
         return data
 
     def set_message_fields(self, d):
         for key, value in d.iteritems():
-            if key in self.message:
-                self.message.update({key: value})
+            if key in self.fields:
+                self.fields.update({key: value})
 
 
 def convert_received_data(data):

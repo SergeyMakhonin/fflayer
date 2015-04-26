@@ -42,19 +42,24 @@ class DataBase(object):
     def add_object(self, ObjectInstance):
         self.session.add(ObjectInstance)
 
-    def create_object(self, table, **kwargs):
+    @staticmethod
+    def create_object(table, **kwargs):
         if table == 'file':
             ObjectInstance = File()
             if 'name' in kwargs:
                 ObjectInstance.name = kwargs['name']
+            elif 'path' in kwargs:
+                ObjectInstance.path = kwargs['path']
             elif 'duration' in kwargs:
                 ObjectInstance.duration = kwargs['duration']
             elif 'parameter' in kwargs:
                 ObjectInstance.parameter = kwargs['parameter']
             # TODO add field values to ObjectInstance
-        elif table == 'schedule': pass
+        elif table == 'schedule':
+            pass
+            # todo describe schedule table
         else:
-            raise Exception('Relation does not exist.')
+            raise Exception('Relation is not supported by Watcher Service.')
         return ObjectInstance
 
 

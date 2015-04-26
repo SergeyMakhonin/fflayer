@@ -24,6 +24,7 @@ class File(DeclarativeBase):
     __tablename__ = 'files'
     id = Column(Integer, primary_key=True)
     name = Column(String)
+    path = Column(String)
     duration = Column(Integer)  # in seconds
     parameter = Column(Integer)
 

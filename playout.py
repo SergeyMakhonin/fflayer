@@ -21,8 +21,11 @@ class Playout(Protocol):
     """
     receives a request for media stream
     """
-    def connectionMade(self):
+    def __init__(self):
+        Protocol.__init__(self)
         self.service_name = 'Playout Service'
+
+    def connectionMade(self):
         std_communication(self.service_name, self.transport)
 
     def connectionLost(self, reason):

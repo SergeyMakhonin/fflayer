@@ -33,13 +33,16 @@ class PlayoutManagerSender(Protocol):
     """
     Sends a request to playout service
     """
+    def __init__(self):
+        Protocol.__init__(self)
+        self.service_name = 'Playout Manager Sender Service'
+
     def dataReceived(self, data):
         sys.stdout.write('Data received: %s' % data)
         got_msg = convert_received_data(data)
         confirm(self.transport, got_msg)
 
     def connectionMade(self):
-        self.service_name = 'Playout Manager Sender Service'
         std_communication(self.service_name, self.transport)
         
         # send request here
@@ -73,8 +76,11 @@ class PlayoutManagerReceiver(Protocol):
     """
     receives a command from database scanner service to pass it to Playout
     """
-    def connectionMade(self):
+    def __init__(self):
+        Protocol.__init__(self)
         self.service_name = 'Playout Manager Receiver Service'
+
+    def connectionMade(self):
         std_communication(self.service_name, self.transport)
 
     def connectionLost(self, reason):
@@ -86,4 +92,4 @@ class PlayoutManagerReceiver(Protocol):
         confirm(self.transport, got_msg)
 
 
-playout_manager_receiver = ReceiverFactory(PlayoutManagerReceiverFactory, 8100)
+playout_manager_receiver = ReceiverFactory(PlayoutManagerReceiverFactory(), 8100)
