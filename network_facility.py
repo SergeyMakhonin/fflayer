@@ -1,10 +1,20 @@
 __author__ = 'sergey'
 
+import sys
+
 from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ServerEndpoint
 
+from twisted.internet.protocol import Factory
+from twisted.internet.protocol import Protocol
+from twisted.python import log
 
-class ReceiverFactory:
+from message import *
+
+log.startLogging(sys.stdout)
+
+
+class ServerFactory:
     """
     initializes a server to process data using given protocol_factory
     """

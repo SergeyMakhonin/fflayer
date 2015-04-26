@@ -1,3 +1,5 @@
+__author__ = 'sergey'
+
 import sys
 
 from twisted.internet.protocol import Factory
@@ -10,28 +12,9 @@ from network_facility import ClientFactory, ServerFactory
 log.startLogging(sys.stdout)
 
 
-class PlayoutManagerSenderFactory(Factory):
+class MainFrameSender(Protocol):
     """
-    Makes Sender to send commands to Playout after received a request
-    """
-
-    def startedConnecting(self, connector):
-        sys.stdout.write('Connecting to playout service...')
-
-    def buildProtocol(self, connector):
-        sys.stdout.write('Protocol built')
-        return PlayoutManagerSender()
-
-    def clientConnectionLost(self, connector, reason):
-        sys.stdout.write('Lost connection.  Reason: %s' % reason)
-
-    def clientConnectionFailed(self, connector, reason):
-        sys.stdout.write('Connection failed. Reason: %s' % reason)
-
-
-class PlayoutManagerSender(Protocol):
-    """
-    Sends a request to playout service
+    Sends a request to service
     """
     def __init__(self):
         Protocol.__init__(self)
@@ -44,7 +27,7 @@ class PlayoutManagerSender(Protocol):
 
     def connectionMade(self):
         std_communication(self.service_name, self.transport)
-        
+
         # send request here
         self.send_request()
 
@@ -55,30 +38,38 @@ class PlayoutManagerSender(Protocol):
         sys.stdout.write('Data sent: %s' % data)
 
 
-# raw code example
-# host = 'localhost'
-# port = 8240
-# reactor.connectTCP(host, port, SenderFactory())
-# reactor.run()
 
-
-# playout_manager client usage example
-# playout_manager = ClientFactory(SenderFactory(), port=8240)
-# playout_manager.run()
-
-
-class PlayoutManagerReceiverFactory(Factory):
-    def buildProtocol(self, addr):
-        return PlayoutManagerReceiver()
-
-
-class PlayoutManagerReceiver(Protocol):
+class MainFrameSenderFactory(Factory):
     """
-    receives a command from database scanner service to pass it to Playout
+    Makes Sender to send commands to all services
+    """
+
+    def startedConnecting(self, connector):
+        sys.stdout.write('Connecting to service...')
+
+    def buildProtocol(self, connector):
+        sys.stdout.write('Protocol built')
+        return MainFrameSender()
+
+    def clientConnectionLost(self, connector, reason):
+        sys.stdout.write('Lost connection.  Reason: %s' % reason)
+
+    def clientConnectionFailed(self, connector, reason):
+        sys.stdout.write('Connection failed. Reason: %s' % reason)
+
+
+class MainFrameReceiverFactory(Factory):
+    def buildProtocol(self, addr):
+        return MainFrameReceiver()
+
+
+class MainFrameReceiver(Protocol):
+    """
+    receives a command from web app or console service to pass it to worker service
     """
     def __init__(self):
         Protocol.__init__(self)
-        self.service_name = 'Playout Manager Receiver Service'
+        self.service_name = 'Main Frame Receiver Service'
 
     def connectionMade(self):
         std_communication(self.service_name, self.transport)
@@ -90,6 +81,3 @@ class PlayoutManagerReceiver(Protocol):
         sys.stdout.write('Data received: %s' % data)
         got_msg = convert_received_data(data)
         confirm(self.transport, got_msg)
-
-
-#playout_manager_receiver = ServerFactory(PlayoutManagerReceiverFactory(), 8100)

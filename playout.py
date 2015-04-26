@@ -7,7 +7,7 @@ from twisted.internet.protocol import Protocol
 from twisted.python import log
 
 from message import *
-from network_facility import ReceiverFactory
+from network_facility import ServerFactory
 
 log.startLogging(sys.stdout)
 
@@ -38,5 +38,5 @@ class Playout(Protocol):
 
 
 # usage example for Playout 240 (on port 8240)
-playout_240 = ReceiverFactory(PlayoutFactory(), 8240)
+playout_240 = ServerFactory(PlayoutFactory(), 8240)
 playout_240.run()

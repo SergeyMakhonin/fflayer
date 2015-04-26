@@ -6,7 +6,7 @@ from time import sleep
 import os
 import sys
 
-from network_facility import ReceiverFactory
+from network_facility import *
 from db.processing import DataBase
 from db.models import *
 from message import *
@@ -110,5 +110,5 @@ class StorageWatcherService(Protocol):
 
 # usage example for StorageWatcherService (on port 8001)
 path = '/home/Videos'
-storage_watcher = ReceiverFactory(StorageWatcherService(path), 8001)
+storage_watcher = ServerFactory(StorageWatcherService(path), 8001)
 storage_watcher.run()
