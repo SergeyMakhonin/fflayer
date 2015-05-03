@@ -81,3 +81,7 @@ class MainFrameReceiver(Protocol):
         sys.stdout.write('Data received: %s' % data)
         got_msg = convert_received_data(data)
         confirm(self.transport, got_msg)
+
+
+if __name__ = '__main__':
+    mainframe_receiver = MainFrameFactoryReceiver(MainFrameReceiver(), 8001)
