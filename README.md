@@ -1,2 +1,2 @@
 # fflayer
-Video streaming service based on ffmpeg (linux).
+Video streaming (air-based) system of services based on ffmpeg (linux).
