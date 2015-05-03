@@ -33,9 +33,10 @@ class PlayoutManagerSender(Protocol):
     """
     Sends a request to playout service
     """
-    def __init__(self):
+    def __init__(self, msg):
         Protocol.__init__(self)
         self.service_name = 'Playout Manager Sender Service'
+        self.msg = msg
 
     def dataReceived(self, data):
         sys.stdout.write('Data received: %s' % data)
@@ -49,8 +50,7 @@ class PlayoutManagerSender(Protocol):
         self.send_request()
 
     def send_request(self):
-        data = b'name,time'
-
+        data = self.msg.in_bytes() # b'name,time'
         self.transport.write(data)
         sys.stdout.write('Data sent: %s' % data)
 
@@ -63,7 +63,7 @@ class PlayoutManagerSender(Protocol):
 
 
 # playout_manager client usage example
-# playout_manager = ClientFactory(SenderFactory(), port=8240)
+# playout_manager = ClientFactory(PlayoutManagerSenderFactory(), port=8240)
 # playout_manager.run()
 
 
@@ -90,6 +90,14 @@ class PlayoutManagerReceiver(Protocol):
         sys.stdout.write('Data received: %s' % data)
         got_msg = convert_received_data(data)
         confirm(self.transport, got_msg)
+        
+        # process the message
+        #todo make date processing
+        
+        # init client and send the message
+        playout_manager_client = ClientFactory(PlayoutManagerSenderFactory(got_msg), port=8044)
+        playout_manager_client.run()
 
 
-#playout_manager_receiver = ServerFactory(PlayoutManagerReceiverFactory(), 8100)
+if __name__ == '__main__':
+    playout_manager_receiver = ServerFactory(PlayoutManagerReceiverFactory(), 8004)
