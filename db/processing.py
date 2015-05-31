@@ -20,7 +20,7 @@ class DataBase(object):
         Method used to create session object @ create_session_object()
         """
         self.connection_made = True
-        return create_engine(URL(**settings.DATABASE))
+        return create_engine(URL(**settings.MYSQL))
 
     def create_session_object(self):
         """
@@ -56,13 +56,18 @@ class DataBase(object):
                 ObjectInstance.parameter = kwargs['parameter']
             # TODO add field values to ObjectInstance
         elif table == 'schedule':
-            pass
-            # todo describe schedule table
+            ObjectInstance = Schedule()
+            if 'name' in kwargs:
+                ObjectInstance.name = kwargs['name']
+            elif 'start_time' in kwargs:
+                ObjectInstance.start_time = kwargs['start_time']
+            elif 'duration' in kwargs:
+                ObjectInstance.duration = kwargs['duration']
         else:
             raise Exception('Relation is not supported by Watcher Service.')
         return ObjectInstance
 
 
-#DB = DataBase()
-#DB.create_session_object()
-#pdb.set_trace()
+DB = DataBase()
+DB.create_session_object()
+pdb.set_trace()
